@@ -18,14 +18,15 @@ end
 
 task :test_packages do
 	require './models/r_package'
-	package = RPackage.new("oss", "3.0.1", {})
+	package = RPackage.new(RPackage.key("oss", "3.0.1"), {"Package" => "oss", "Version" => "3.0.1"})
 	package.save
-	package = RPackage.new("oss", "3.1.2", {})
+	package = RPackage.new(RPackage.key("oss", "3.1.2"), {"Package" => "oss", "Version" => "3.1.2"})
 	package.save
-	puts RPackage.find("oss", "3.0.3").nil?
-	puts RPackage.find("oss", "3.0.1").name == "oss"
-	puts RPackage.find("oss", "3.0.1").version == "3.0.1"
-	puts RPackage.find("oss").collect{|p| p.version} == ["3.0.1", "3.1.2"]
+	puts RPackage.find(RPackage.key("oss", "3.0.3")).nil?
+	p RPackage.find(RPackage.key("oss", "3.0.1"))
+	puts RPackage.find(RPackage.key("oss", "3.0.1")).data["Package"] == "oss"
+	puts RPackage.find(RPackage.key("oss", "3.0.1")).data["Version"] == "3.0.1"
+	puts RPackage.find_partial("oss").collect{|p| p.data["Version"]} == ["3.0.1", "3.1.2"]
 	puts RPackage.all.length == 2
 end
 

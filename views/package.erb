@@ -4,7 +4,25 @@
 		<h4><%=@title%></h4>
 		<ul>
 			<%@package.data.each do |k, v|%>
+				<% if k == "Depends"%>
+					<li> Dependencies:
+						<ul>
+							<%@package.dependencies.each do |d| %>
+								<li>
+									<a href="/packages/<%=d.first%>"><%=d.first%></a>
+									<% if d.length > 1 %>
+									<% version = d.last.sub(')', '') %>
+										<a href="/packages/<%=d.first%>/<%=version%>"><%=version%></a>
+									<% end %> 
+								</li>
+							<% end %>
+						</ul>
+					</li>
+				<% elsif k == "Author" %>
+				<% elsif k == "Maintainer" %>
+				<% else%>
 				<li><%=k%> : <%=v%></li>
+				<% end %>
 			<%end %>
 		</ul>
 	</body>

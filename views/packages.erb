@@ -4,7 +4,10 @@
 		<h4><%=@title%></h4>
 		<ol>
 			<%@packages.each do |p|%>
-				<li><a href="/packages/<%=p.name%>"><%=p.name%> (<a href="/packages/<%=p.name%>/<%=p.version%>"><%=p.version%>)</li>
+				<li>
+					<a href="/packages/<%=p.data['Package']%>">
+							<%=p.name%></a> (<a href="/packages/<%=p.data['Package']%>/<%=p.data['Version']%>"><%=p.data['Version']%></a>)
+				</li>
 			<%end %>
 		</ol>
 	</body>

@@ -22,7 +22,7 @@ module RPackageIndexer
 		@packages_list_path = "#{@packages_path}PACKAGES"
 		@logger = Logger.new(STDOUT)
 		@key_fields = ["Package", "Version"]
-		@desc_fields = ["Date/Publication", "Title", "Description", "Author", "Maintainer"]
+		@desc_fields = ["Date/Publication", "Title", "Description", "Author", "Maintainer", "Depends"]
 		@inpipe = inpipe
 		@thread_pool = Thread.pool(8)
 		#at_exit{ @thread_pool.shutdown }
@@ -60,6 +60,7 @@ module RPackageIndexer
 		if !package or force_fetch 
 			desc = fetch_package_description(package_path(key["Package"], key["Version"]))[0]
 			data = {}
+		  @key_fields.each{|f| data[f] = key[f]}
 			@desc_fields.each{|f| data[f] = desc[f]}
 			package = RPackage.new(key["Package"], key["Version"], data)
 			package.save
