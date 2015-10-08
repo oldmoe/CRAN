@@ -6,13 +6,14 @@ require 'net/http'
 require './models/r_package'
 require 'rubygems/package'
 require 'zlib'
+require 'thread/pool'
 
 module RPackageIndexer
 
 	class Worker
 
 	# nothing to do here for the moment, could be used later for initial settings
-	def initialize(inpipe)
+	def initialize(inpipe, host)
 		@header_sep = "\r\n"
 		@headers_sep = "\r\n\r\n"
 		@package_sep = "\n"
@@ -23,17 +24,35 @@ module RPackageIndexer
 		@key_fields = ["Package", "Version"]
 		@desc_fields = ["Date/Publication", "Title", "Description", "Author", "Maintainer"]
 		@inpipe = inpipe
+		@thread_pool = Thread.pool(8)
+		#at_exit{ @thread_pool.shutdown }
+		@host = host
 	end
 	
 	#loop forever and recieve indexing requests from your parent
 	def run
+		@running = true
 		loop do
-			package_desc = @inpipe.gets("\n\n")
-			puts package_desc
-			index_package(package_desc)
-		end
+				package_desc = @inpipe.gets("\n\n")
+				if package_desc == "DIE\n\n"
+					@running = false
+					@thread_pool.shutdown
+					exit
+				end
+				@thread_pool.process do
+					begin
+						t = Time.now
+						@logger.info "Process:#{Process.pid} - Thread:#{Thread.current.object_id} engaged"
+						index_package(package_desc)
+						@logger.info "Process:#{Process.pid} - Thread:#{Thread.current.object_id} finished in #{Time.now - t}"
+					rescue Exception => e
+						#@logger.error e.message
+					end
+				end
+		end while @running
 	end
 		
+
 	# uses a package description to index it
 	def index_package(package_desc, force_fetch = false)
 		key = Dcf.parse(package_desc)[0]

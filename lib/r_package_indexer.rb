@@ -24,7 +24,6 @@ module RPackageIndexer
 		@desc_fields = ["Date/Publication", "Title", "Description", "Author", "Maintainer"]
 		@workers = []
 		@worker_count = 4
-		init_workers(@worker_count)
 	end
 	
 	
@@ -33,18 +32,22 @@ module RPackageIndexer
 		count.times do
 			rd, wr = IO.pipe
 			@workers << wr # master keeps the write end of the pipe
-			if !fork
+			if ! pid = fork
 				require './lib/worker'
-				worker = RPackageIndexer::Worker.new(rd) # worker receives the read end of the pipe
+				worker = RPackageIndexer::Worker.new(rd, @host) # worker receives the read end of the pipe
 				worker.run # never ending loop
 				break
+			else
+			
 			end
 		end
+		at_exit { @workers.each{|w| w << "DIE\n\n"} } # to notify children of their imminent death
 	end
 	
 	# connects to the url and streams the package descriptions for indexing
 	def index_http(host, force_fetch = false)
 		@host = host
+		init_workers(@worker_count)
 		@logger.info "Processing packages from #{host}"
 		t = Time.now
 		socket = TCPSocket.open(host, 80)

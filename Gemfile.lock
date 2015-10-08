@@ -1,4 +1,5 @@
 GEM
+  remote: https://rubygems.org/
   specs:
     chronic (0.10.2)
     http_parser.rb (0.6.0)
@@ -15,6 +16,7 @@ GEM
       tilt (>= 1.3, < 3)
     test-unit (3.0.8)
       power_assert
+    thread (0.2.2)
     tilt (2.0.1)
     treetop (1.6.3)
       polyglot (~> 0.3)
@@ -32,6 +34,7 @@ DEPENDENCIES
   oj
   sinatra
   test-unit
+  thread
   treetop-dcf
   whenever
 
