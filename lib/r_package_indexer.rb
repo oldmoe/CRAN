@@ -7,7 +7,9 @@ require './models/r_package'
 require 'rubygems/package'
 require 'zlib'
 
-class RPackageIndexer
+module RPackageIndexer
+	
+	class Master
 
 	# nothing to do here for the moment, could be used later for initial settings
 	def initialize
@@ -20,6 +22,24 @@ class RPackageIndexer
 		@logger = Logger.new(STDOUT)
 		@key_fields = ["Package", "Version"]
 		@desc_fields = ["Date/Publication", "Title", "Description", "Author", "Maintainer"]
+		@workers = []
+		@worker_count = 4
+		init_workers(@worker_count)
+	end
+	
+	
+	# initialize worker processes
+	def init_workers(count)
+		count.times do
+			rd, wr = IO.pipe
+			@workers << wr # master keeps the write end of the pipe
+			if !fork
+				require './lib/worker'
+				worker = RPackageIndexer::Worker.new(rd) # worker receives the read end of the pipe
+				worker.run # never ending loop
+				break
+			end
+		end
 	end
 	
 	# connects to the url and streams the package descriptions for indexing
@@ -42,11 +62,9 @@ class RPackageIndexer
 	
 	#an alternative source for data
 	def index_file(path, force_fetch = false)
-		@logger.info "Processing packages from #{host}"
 		file = File.open(path, "r") do
 			processed = index(file, file.size, force_fetch)
 		end
-		@logger.info "Processed #{processed} packages in #{Time.now - t} seconds"
 	end
 	
 	# given an IO stream (File, Socket, StringIO, etc) this method will
@@ -61,44 +79,16 @@ class RPackageIndexer
 				if line != "\n"
 					package_desc << line
 				else
-					index_package package_desc, force_fetch
+					#index_package package_desc, force_fetch
+					@workers[processed_packages % @workers.length] << package_desc << @package_sep
 					processed_packages = processed_packages + 1
-					#return 10 if processed_packages == 10 # for quick testing
+					return 10 if processed_packages == 10 # for quick testing
 					package_desc = ""
 				end
 				processed_bytes = processed_bytes + line.length
 				break unless processed_bytes < length
 		end
 		processed_packages
-	end
-	
-	# uses a package description to index it
-	def index_package(package_desc, force_fetch)
-		key = Dcf.parse(package_desc)[0]
-		package = RPackage.find(key["Package"], key["Version"])
-		if !package or force_fetch 
-			desc = fetch_package_description(package_path(key["Package"], key["Version"]))[0]
-			data = {}
-			@desc_fields.each{|f| data[f] = desc[f]}
-			package = RPackage.new(key["Package"], key["Version"], data)
-			package.save
-		end
-	end
-	
-	
-	def fetch_package_description(path)
-			data = Net::HTTP.get(@host, path)
-			tar_extract = Gem::Package::TarReader.new(Zlib::GzipReader.new(StringIO.new(data)))
-			tar_extract.rewind # The extract has to be rewinded after every iteration
-			tar_extract.each do |entry|
-				if entry.full_name.split("/").last == "DESCRIPTION"
-				 data = entry.read
-				 tar_extract.close
-				 return Dcf.parse(data)
-				end
-			end
-			tar_extract.close
-			return {}
 	end
 	 
 	# helpers
@@ -110,6 +100,8 @@ class RPackageIndexer
 	
 	def package_path(name, version)
 		"#{@packages_path}#{name}_#{version}.tar.gz"
+	end
+	
 	end
 	
 end

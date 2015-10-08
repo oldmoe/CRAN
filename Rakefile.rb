@@ -6,7 +6,7 @@ end
 
 task :run_indexer do
 	require './lib/r_package_indexer'
-	indexer = RPackageIndexer.new
+	indexer = RPackageIndexer::Master.new
 	indexer.index_http('cran.r-project.org')
 end
 
