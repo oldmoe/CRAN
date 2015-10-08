@@ -16,18 +16,20 @@ task :reindex do
 	indexer.index_http('cran.r-project.org', true)
 end
 
-task :test_packages do
+task :test_models do
 	require './models/r_package'
-	package = RPackage.new(RPackage.key("oss", "3.0.1"), {"Package" => "oss", "Version" => "3.0.1"})
-	package.save
-	package = RPackage.new(RPackage.key("oss", "3.1.2"), {"Package" => "oss", "Version" => "3.1.2"})
-	package.save
+	package = RPackage.new(RPackage.key("oss", "3.0.1"), {"Package" => "oss", "Version" => "3.0.1"}).save
+	package = RPackage.new(RPackage.key("oss", "3.1.2"), {"Package" => "oss", "Version" => "3.1.2"}).save
 	puts RPackage.find(RPackage.key("oss", "3.0.3")).nil?
 	p RPackage.find(RPackage.key("oss", "3.0.1"))
 	puts RPackage.find(RPackage.key("oss", "3.0.1")).data["Package"] == "oss"
 	puts RPackage.find(RPackage.key("oss", "3.0.1")).data["Version"] == "3.0.1"
 	puts RPackage.find_partial("oss").collect{|p| p.data["Version"]} == ["3.0.1", "3.1.2"]
 	puts RPackage.all.length == 2
+  RPackage.new(RPackage.key("oss", "3.0.1"), {"Package" => "abc", "Version" => "3.0.0", "Author" => "David, Ossama, Rafael <rafael@rafael.com>, Timothy <tim@thy.com>", "Maintainer" => "Michael, Ossama, Timothy <tim@thy.com>"}).save
+	puts RContributor.all.length == 5
+	puts RContributor.find("Timothy").data["email"] == "tim@thy.com"
+	puts RContributor.find_by_email("tim@thy.com").key == "Timothy" 
 end
 
 
