@@ -23,7 +23,7 @@
 							<ul>
 							<%@package.authors.each do |a|%>
 								<li>
-									<%=a.first%> <%=a.last%>
+									<a href="/authors/<%=a.first%>"><%=a.first%></a> <a href="/authors/<%=a.first%>"><%=a.last%></a>
 								</li>
 							<%end%>
 							</ul>

@@ -24,7 +24,8 @@ get '/packages/:name/:version' do
 end
 
 get '/authors/:name' do
-
+	@contributor = RContributor.find(params[:name])
+	erb :author
 end
 
 get '/contributors/:name' do
