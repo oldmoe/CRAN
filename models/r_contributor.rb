@@ -19,15 +19,16 @@ class RContributor < RModel
 	
 	def self.authored(key, package, email = nil)
 			data = db.get(key)
-			c = RContributor.new(key, Oj.load(data))
+			data = Oj.load(data) if data
+			c = RContributor.new(key, data)
 			c.authored << package
-			puts c.data
 			c.data["email"] = email if email
 			c.save
 	end 
 	
 	def self.maintained(key, package, email = nil)
 			data = db.get(key)
+			data = Oj.load(data) if data
 			c = RContributor.new(key, data)
 			c.maintained << package
 			c.data["email"] = email if email
@@ -35,8 +36,8 @@ class RContributor < RModel
 	end
 	
 	def self.find_by_email(email)
-		if name = RContributorEmail.find(email)
-			self.find(name)
+		if record = RContributorEmail.find(email)
+			self.find(record.data)
 		end
 	end
 	

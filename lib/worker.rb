@@ -56,13 +56,13 @@ module RPackageIndexer
 	# uses a package description to index it
 	def index_package(package_desc, force_fetch = false)
 		key = Dcf.parse(package_desc)[0]
-		package = RPackage.find(key["Package"], key["Version"])
+		package = RPackage.find(RPackage.key(key["Package"], key["Version"]))
 		if !package or force_fetch 
 			desc = fetch_package_description(package_path(key["Package"], key["Version"]))[0]
 			data = {}
 		  @key_fields.each{|f| data[f] = key[f]}
 			@desc_fields.each{|f| data[f] = desc[f]}
-			package = RPackage.new(key["Package"], key["Version"], data)
+			package = RPackage.new(RPackage.key(key["Package"], key["Version"]), data)
 			package.save
 		end
 	end

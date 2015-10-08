@@ -41,7 +41,7 @@ class RModel
 	end
 	
 	def self.db
-		@db ||= env.database(self.class.name.downcase, :create => true)
+		@db ||= env.database(self.name.downcase, :create => true)
 	end
 	
 	def self.env

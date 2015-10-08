@@ -50,14 +50,14 @@ class RPackage < RModel
 	end
 
 	def save
-=begin
+#=begin
 		authors.each do |a|
 			RContributor.authored(a[0], @key, a[1])
-		end
+		end if authors
 		maintainers.each do |a|
 			RContributor.maintained(a[0], @key, a[1])
-		end
-=end
+		end if maintainers
+#=end
 		super
 	end
 	
