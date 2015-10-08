@@ -68,7 +68,10 @@ class RPackage
 	end
 	
 	def self.env
-		@@env ||= LMDB.new("./db", :mapsize => 1024*1024*1024)
+		return @@env rescue nil
+		@@env = LMDB.new("./db", :mapsize => 1024*1024*1024)
+		at_exit { @@env.close } # cleanup after yourself
+		@@env
 	end	
 	
 end
