@@ -6,15 +6,25 @@ class RPackage < RModel
 	SEP = '[:|:]'
 
 	def dependencies
-		@data["Depends"].split(",").collect{|d| d.split(" ")}
+		if @data["Depends"]
+			@data["Depends"].split(",").collect{|d| d.split(" ")}
+		end
 	end
 	
 	def authors
-		@data["Author"].sub(' and ', ', ').split(", ").collect{|a| a.trim.split(' ')}
+		if @data["Author"]
+				@data["Author"].sub(' and ', ', ').split(", ").collect{|a| a.split(' ')} 
+		else
+			[]
+		end
 	end
 	
 	def maintainers
-		@data["Maintainer"].sub(' and ', ', ').split(", ").collect{|m| m.trim.split(' ')}
+		if @data["Maintainer"]
+				@data["Maintainer"].sub(' and ', ', ').split(", ").collect{|m| m.split(' ')} 
+		else
+			[]
+		end
 	end
 
 	def self.find_partial(partial_key)
@@ -40,12 +50,14 @@ class RPackage < RModel
 	end
 
 	def save
-		def authors.each do |a|
-			Contributor.authored(a[0], @key, a[1])
+=begin
+		authors.each do |a|
+			RContributor.authored(a[0], @key, a[1])
 		end
-		def maintainers.each do |a|
-			Contributor.maintained(a[0], @key, a[1])
+		maintainers.each do |a|
+			RContributor.maintained(a[0], @key, a[1])
 		end
+=end
 		super
 	end
 	

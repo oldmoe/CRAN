@@ -1,5 +1,5 @@
 require './lib/r_model'
-require './models/r_contributior_email'
+require './models/r_contributor_email'
 
 class RContributor < RModel
 
@@ -19,8 +19,9 @@ class RContributor < RModel
 	
 	def self.authored(key, package, email = nil)
 			data = db.get(key)
-			c = RContributor.new(key, data)
+			c = RContributor.new(key, Oj.load(data))
 			c.authored << package
+			puts c.data
 			c.data["email"] = email if email
 			c.save
 	end 

@@ -85,7 +85,7 @@ module RPackageIndexer
 					#index_package package_desc, force_fetch
 					@workers[processed_packages % @workers.length] << package_desc << @package_sep
 					processed_packages = processed_packages + 1
-					return 10 if processed_packages == 10 # for quick testing
+					return 100 if processed_packages == 100 # for quick testing
 					package_desc = ""
 				end
 				processed_bytes = processed_bytes + line.length

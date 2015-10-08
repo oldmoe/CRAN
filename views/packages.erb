@@ -6,7 +6,7 @@
 			<%@packages.each do |p|%>
 				<li>
 					<a href="/packages/<%=p.data['Package']%>">
-							<%=p.name%></a> (<a href="/packages/<%=p.data['Package']%>/<%=p.data['Version']%>"><%=p.data['Version']%></a>)
+							<%=p.data['Package']%></a> (<a href="/packages/<%=p.data['Package']%>/<%=p.data['Version']%>"><%=p.data['Version']%></a>)
 				</li>
 			<%end %>
 		</ol>

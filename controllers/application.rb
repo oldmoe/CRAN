@@ -17,7 +17,8 @@ end
 
 get '/packages/:name/:version' do
 	@title = "#{params[:name]} version #{params[:version]}"
-	@package = RPackage.find(RPackage.(params[:name], params[:version]))
+	puts RPackage.key(params[:name], params[:version])
+	@package = RPackage.find(RPackage.key(params[:name], params[:version]))
 	p @package
 	erb :package
 end
